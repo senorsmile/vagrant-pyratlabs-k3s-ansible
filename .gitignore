@@ -1,0 +1,4 @@
+.vagrant/
+
+pyratlabs-issue-dump.txt
+manual_install.sh

@@ -1,0 +1,3 @@
+[submodule "external/Pyratlabs.k3s"]
+	path = external/Pyratlabs.k3s
+	url = git@github.com:PyratLabs/ansible-role-k3s.git

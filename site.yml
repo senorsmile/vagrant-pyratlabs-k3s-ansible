@@ -1,0 +1,52 @@
+---
+- hosts: 
+    - all
+  gather_facts: False
+  become: False
+  pre_tasks:
+    - name: Ping
+      ping:
+
+- hosts: 
+    - k3s
+  gather_facts: True
+  become: True
+  strategy: linear # [linear, free]
+  #serial: 1
+  pre_tasks:
+    - block:
+          - name: Set hostname from ansible inventory
+            hostname:
+              name: "{{ inventory_hostname }}"
+
+          - name: Add additional local hostname entry to /etc/hosts
+            lineinfile:
+              dest: /etc/hosts
+              regexp: '^127\.0\.1\.1'
+              insertafter: '^127\.0\.0\.1'
+              line: >
+                127.0.1.1
+                {{ host_fqdn | default(omit) }}
+                {{ inventory_hostname }}
+              backup: yes
+              owner: root
+              group: root
+              mode: 0644
+
+          - name: Add additional hosts entries to /etc/hosts
+            lineinfile:
+              dest: /etc/hosts
+              regexp: '^.* {{ inventory_hostname }}$'
+              line: >
+                {{ ansible_host }}
+                {{ inventory_hostname }}
+              backup: yes
+              owner: root
+              group: root
+              mode: 0644
+      tags:
+        - hostname
+
+
+  roles:
+    - role: Pyratlabs.k3s

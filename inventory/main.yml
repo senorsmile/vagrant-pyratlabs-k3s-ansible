@@ -1,0 +1,58 @@
+---
+k3s:
+  vars:
+    ansible_ssh_common_args: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+    ansible_user: vagrant
+    ansible_become_pass: vagrant
+    ansible_ssh_private_key_file: ".vagrant/machines/{{ inventory_hostname }}/virtualbox/private_key"
+   
+    k3s_release_version: "v1.20.5+k3s1"
+    k3s_registration_address: 192.168.85.101
+    k3s_become_for_all: True
+    k3s_install_hard_links: True
+    k3s_state: installed
+    k3s_use_experimental: True
+
+
+  children:
+    #-------------------
+    k3s_masters:
+    #-------------------
+      vars:
+        k3s_control_node: True
+        k3s_etcd_datastore: True # embedded replicated etcd
+        k3s_server:
+          advertise-address: "{{ ansible_host }}"
+          node-external-ip: "{{ ansible_host }}"
+          node-ip: "{{ ansible_host }}"
+          #node-taint:
+          #    - "k3s-controlplane=true:NoExecute"
+
+      hosts:
+        vagrant-k3s-master01:
+          ansible_host: 192.168.85.101
+          k3s_primary_control_node: True
+        vagrant-k3s-master02:
+          ansible_host: 192.168.85.102
+        vagrant-k3s-master03:
+          ansible_host: 192.168.85.103
+
+
+    #-------------------
+    k3s_nodes:
+    #-------------------
+      vars:
+        k3s_control_node: False
+        k3s_agent:
+          advertise-address: "{{ ansible_host }}"
+          node-external-ip: "{{ ansible_host }}"
+          node-ip: "{{ ansible_host }}"
+          with-node-id: true
+
+      hosts:
+        vagrant-k3s-node01:
+          ansible_host: 192.168.85.111
+        vagrant-k3s-node02:
+          ansible_host: 192.168.85.112
+        vagrant-k3s-node03:
+          ansible_host: 192.168.85.113
