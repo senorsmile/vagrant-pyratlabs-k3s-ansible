@@ -44,7 +44,7 @@ k3s:
       vars:
         k3s_control_node: False
         k3s_agent:
-          advertise-address: "{{ ansible_host }}"
+          #advertise-address: "{{ ansible_host }}"
           node-external-ip: "{{ ansible_host }}"
           node-ip: "{{ ansible_host }}"
           with-node-id: true
